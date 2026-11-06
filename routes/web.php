@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/my-orders', [CheckoutController::class, 'myOrders'])->name('orders.index');
     Route::get('/my-orders/{id}', [CheckoutController::class, 'orderDetail'])->name('orders.show');
+    Route::get('/my-orders/{id}/payment', [CheckoutController::class, 'paymentPage'])->name('orders.payment');
+    Route::post('/my-orders/{id}/pay', [CheckoutController::class, 'processPayment'])->name('orders.pay');
 
     // Fitur Profil Pengguna (Edit Biodata & Ganti Password)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

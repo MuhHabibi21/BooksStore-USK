@@ -56,15 +56,15 @@
                 <div class="mb-2">
                     <span class="text-muted small me-2">Status Pesanan:</span>
                     @if($order->status === 'completed')
-                        <span class="badge bg-success">Selesai</span>
+                        <span class="badge bg-success"><i class="bi bi-check-all me-1"></i> Selesai</span>
                     @elseif($order->status === 'shipped')
-                        <span class="badge bg-info text-dark">Sedang Dikirim</span>
+                        <span class="badge bg-info text-dark"><i class="bi bi-truck me-1"></i> Sedang Dikirim</span>
                     @elseif($order->status === 'processing')
-                        <span class="badge bg-primary">Diproses</span>
+                        <span class="badge bg-primary"><i class="bi bi-box-seam me-1"></i> Diproses</span>
                     @elseif($order->status === 'cancelled')
-                        <span class="badge bg-danger">Dibatalkan</span>
+                        <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i> Dibatalkan</span>
                     @else
-                        <span class="badge bg-warning text-dark">Menunggu Konfirmasi</span>
+                        <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i> Menunggu Konfirmasi Admin</span>
                     @endif
                 </div>
 
@@ -73,12 +73,19 @@
                     <strong class="text-dark">{{ $order->payment_method }}</strong>
                 </div>
 
-                <div>
-                    <span class="text-muted small me-2">Status Pembayaran:</span>
+                <div class="d-flex align-items-center justify-content-md-end flex-wrap gap-2">
+                    <span class="text-muted small">Status Pembayaran:</span>
                     @if($order->payment_status === 'paid')
-                        <span class="badge bg-success">Lunas</span>
+                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Sudah Dibayar (Lunas)</span>
                     @else
-                        <span class="badge bg-secondary">Belum Dibayar (Saat Antar)</span>
+                        @if($order->payment_method === 'Payment at Delivery' || $order->payment_method === 'Payment at Delivery (COD)')
+                            <span class="badge bg-secondary">Belum Dibayar (Saat Antar)</span>
+                        @else
+                            <span class="badge bg-danger">Belum Dibayar</span>
+                        @endif
+                        <a href="{{ route('orders.payment', $order->id) }}" class="btn btn-sm btn-primary py-1 px-2 fw-semibold">
+                            <i class="bi bi-wallet2 me-1"></i> Bayar Sekarang
+                        </a>
                     @endif
                 </div>
             </div>
@@ -121,9 +128,42 @@
             </table>
         </div>
 
-        <div class="alert alert-secondary small mb-0">
-            <strong>Keterangan Pembayaran:</strong> Pesanan ini menggunakan skema <em>Payment at Delivery</em> di mana pembayaran dapat diserahkan langsung kepada kurir sebelum serah terima paket buku atau transfer saat pengiriman.
-        </div>
+        <!-- Keterangan Status Pembayaran -->
+        @if($order->payment_status === 'paid')
+            <div class="alert alert-success d-flex align-items-center gap-3 mb-0">
+                <i class="bi bi-check-circle-fill fs-3 text-success"></i>
+                <div>
+                    <strong>Status Pembayaran: Sudah Dibayar (Lunas)</strong>
+                    <div class="small text-muted">Pembayaran sebesar <strong>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> telah lunas melalui <strong>{{ $order->payment_method }}</strong>. Status pesanan Anda saat ini adalah <strong>Menunggu Konfirmasi Admin</strong> untuk diproses dan disiapkan pengirimannya.</div>
+                </div>
+            </div>
+        @elseif($order->payment_method === 'Payment at Delivery' || $order->payment_method === 'Payment at Delivery (COD)')
+            <div class="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-2 mb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-cash-stack fs-3 text-primary"></i>
+                    <div>
+                        <strong>Skema Pembayaran di Tempat (COD):</strong>
+                        <div class="small text-muted">Pembayaran sebesar <strong>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> diserahkan tunai kepada kurir saat buku sampai di alamat Anda.</div>
+                    </div>
+                </div>
+                <a href="{{ route('orders.payment', $order->id) }}" class="btn btn-primary btn-sm text-nowrap">
+                    <i class="bi bi-qr-code me-1"></i> Bayar Online Sekarang (QRIS / VA)
+                </a>
+            </div>
+        @else
+            <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2 mb-0">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-exclamation-circle-fill fs-3 text-warning"></i>
+                    <div>
+                        <strong>Menunggu Pembayaran:</strong>
+                        <div class="small text-muted">Pesanan belum dibayar. Silakan lakukan pembayaran sebesar <strong>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong> agar pesanan dapat segera diproses admin.</div>
+                    </div>
+                </div>
+                <a href="{{ route('orders.payment', $order->id) }}" class="btn btn-primary btn-sm text-nowrap">
+                    <i class="bi bi-credit-card me-1"></i> Bayar Sekarang
+                </a>
+            </div>
+        @endif
     </div>
 </div>
 @endsection

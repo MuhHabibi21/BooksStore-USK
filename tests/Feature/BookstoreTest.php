@@ -344,4 +344,91 @@ class BookstoreTest extends TestCase
         $authResponse = $this->get('/login');
         $authResponse->assertRedirect('/');
     }
+
+    public function test_user_can_place_order_with_qris_and_redirects_to_payment_page(): void
+    {
+        $user = User::where('role', 'user')->first();
+        $book = Book::first();
+
+        $this->actingAs($user);
+        $this->post('/cart/add/' . $book->id, ['quantity' => 1]);
+
+        $response = $this->post('/checkout', [
+            'recipient_name' => 'Wandi Test',
+            'recipient_phone' => '08123456789',
+            'delivery_address' => 'Jl. Surabaya 10',
+            'payment_method' => 'QRIS',
+        ]);
+
+        $order = Order::where('recipient_name', 'Wandi Test')->latest()->first();
+        $this->assertNotNull($order);
+        $response->assertRedirect('/my-orders/' . $order->id . '/payment');
+
+        // Buka halaman pembayaran
+        $paymentPageRes = $this->get('/my-orders/' . $order->id . '/payment');
+        $paymentPageRes->assertStatus(200);
+        $paymentPageRes->assertSee('QRIS');
+        $paymentPageRes->assertSee('Virtual Account');
+        $paymentPageRes->assertSee('Kartu Debit');
+
+        // Selesaikan pembayaran
+        $payRes = $this->post('/my-orders/' . $order->id . '/pay', [
+            'payment_method' => 'QRIS',
+        ]);
+
+        $payRes->assertRedirect('/my-orders/' . $order->id);
+
+        $order->refresh();
+        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('pending', $order->status); // Menunggu konfirmasi admin
+
+        // Buka faktur pesanan
+        $invoiceRes = $this->get('/my-orders/' . $order->id);
+        $invoiceRes->assertStatus(200);
+        $invoiceRes->assertSee('Menunggu Konfirmasi Admin');
+        $invoiceRes->assertSee('Sudah Dibayar (Lunas)');
+    }
+
+    public function test_user_can_pay_existing_unpaid_order(): void
+    {
+        $user = User::where('role', 'user')->first();
+        $book = Book::first();
+
+        // Buat pesanan belum bayar (seperti pesanan #6 atau #7)
+        $order = Order::create([
+            'order_number' => 'ORD-TEST-UNPAID',
+            'user_id' => $user->id,
+            'total_amount' => 150000,
+            'status' => 'pending',
+            'payment_method' => 'Bank Transfer',
+            'payment_status' => 'unpaid',
+            'recipient_name' => 'Wandi Existing',
+            'recipient_phone' => '08123456789',
+            'delivery_address' => 'Jalan Surabaya 10',
+        ]);
+
+        $this->actingAs($user);
+
+        // Faktur menampilkan tombol Bayar Sekarang
+        $detailRes = $this->get('/my-orders/' . $order->id);
+        $detailRes->assertStatus(200);
+        $detailRes->assertSee('Bayar Sekarang');
+
+        // User melakukan pembayaran Virtual Account
+        $payRes = $this->post('/my-orders/' . $order->id . '/pay', [
+            'payment_method' => 'Transfer Bank (BCA Virtual Account)',
+        ]);
+
+        $payRes->assertRedirect('/my-orders/' . $order->id);
+
+        $order->refresh();
+        $this->assertEquals('paid', $order->payment_status);
+        $this->assertEquals('pending', $order->status); // Menunggu konfirmasi admin
+        $this->assertEquals('Transfer Bank (BCA Virtual Account)', $order->payment_method);
+
+        // Faktur sekarang menampilkan Sudah Dibayar (Lunas)
+        $updatedRes = $this->get('/my-orders/' . $order->id);
+        $updatedRes->assertSee('Sudah Dibayar (Lunas)');
+        $updatedRes->assertSee('Menunggu Konfirmasi Admin');
+    }
 }

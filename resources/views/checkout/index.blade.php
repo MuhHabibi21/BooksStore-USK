@@ -63,22 +63,51 @@
                         <h5 class="fw-bold mb-0"><i class="bi bi-wallet2 text-primary me-2"></i> 2. Metode Pembayaran</h5>
                     </div>
                     <div class="card-body p-4">
+                        <!-- Pilihan 1: QRIS -->
                         <div class="form-check p-3 border rounded-3 mb-2 bg-light">
-                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_delivery" value="Payment at Delivery" checked>
-                            <label class="form-check-label w-100" for="pay_delivery">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_qris" value="QRIS" checked>
+                            <label class="form-check-label w-100" for="pay_qris">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <strong class="text-primary fs-6">Payment at Delivery (COD)</strong>
-                                    <span class="badge bg-success">Direkomendasikan</span>
+                                    <strong class="text-primary fs-6"><i class="bi bi-qr-code me-1"></i> QRIS (Instan & Otomatis)</strong>
+                                    <span class="badge bg-success">Populer</span>
                                 </div>
-                                <p class="text-muted small mb-0 mt-1">Pembayaran buku diselesaikan secara tunai atau serah terima langsung sebelum/saat buku dikirimkan ke alamat Anda.</p>
+                                <p class="text-muted small mb-0 mt-1">Scan kode QR via GoPay, OVO, DANA, ShopeePay, LinkAja, atau aplikasi Mobile Banking.</p>
                             </label>
                         </div>
 
-                        <div class="form-check p-3 border rounded-3 text-muted">
-                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_transfer" value="Bank Transfer">
+                        <!-- Pilihan 2: Transfer Bank / Virtual Account -->
+                        <div class="form-check p-3 border rounded-3 mb-2">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_transfer" value="Transfer Bank / Virtual Account">
                             <label class="form-check-label w-100" for="pay_transfer">
-                                <strong>Transfer Bank / Virtual Account</strong>
-                                <p class="small mb-0 mt-1">Metode alternatif transfer manual ke rekening toko buku.</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="text-dark fs-6"><i class="bi bi-bank me-1"></i> Transfer Bank / Virtual Account</strong>
+                                    <span class="badge bg-secondary-subtle text-secondary border">BCA, Mandiri, BRI, BNI</span>
+                                </div>
+                                <p class="text-muted small mb-0 mt-1">Pembayaran melalui nomor Virtual Account resmi dengan verifikasi instan.</p>
+                            </label>
+                        </div>
+
+                        <!-- Pilihan 3: Kartu Debit Online -->
+                        <div class="form-check p-3 border rounded-3 mb-2">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_debit" value="Kartu Debit / Kredit Online">
+                            <label class="form-check-label w-100" for="pay_debit">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="text-dark fs-6"><i class="bi bi-credit-card me-1"></i> Kartu Debit / Kredit Online</strong>
+                                    <span class="badge bg-secondary-subtle text-secondary border">Visa / Mastercard / GPN</span>
+                                </div>
+                                <p class="text-muted small mb-0 mt-1">Bayar cepat dan praktis menggunakan kartu debit bank Anda.</p>
+                            </label>
+                        </div>
+
+                        <!-- Pilihan 4: COD (Payment at Delivery) -->
+                        <div class="form-check p-3 border rounded-3">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="pay_delivery" value="Payment at Delivery (COD)">
+                            <label class="form-check-label w-100" for="pay_delivery">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong class="text-dark fs-6"><i class="bi bi-cash-stack me-1"></i> Payment at Delivery (COD)</strong>
+                                    <span class="badge bg-secondary-subtle text-secondary border">Bayar di Tempat</span>
+                                </div>
+                                <p class="text-muted small mb-0 mt-1">Pembayaran diselesaikan secara tunai kepada kurir saat buku diantar ke alamat Anda.</p>
                             </label>
                         </div>
                     </div>
@@ -114,8 +143,8 @@
                             <span class="fs-5 fw-bold text-primary">Rp {{ number_format($total, 0, ',', '.') }}</span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-6">
-                            <i class="bi bi-check-circle-fill me-1"></i> Buat Pesanan Sekarang
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold fs-6 shadow-sm">
+                            <i class="bi bi-shield-check me-1"></i> Lanjut ke Pembayaran & Buat Pesanan
                         </button>
 
                         <div class="text-center mt-3">

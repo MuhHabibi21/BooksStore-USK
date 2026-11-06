@@ -148,7 +148,63 @@ class CheckoutController extends Controller
         session()->put('cart', $allCart);
         session()->forget('selected_items');
 
-        return redirect()->route('orders.show', $order->id)->with('success', 'Pesanan Anda berhasil dibuat! Silakan siapkan pembayaran sesuai metode yang dipilih.');
+        // Jika memilih metode pembayaran digital (QRIS / Bank Transfer / Debit), arahkan langsung ke halaman pembayaran
+        if ($validated['payment_method'] === 'Payment at Delivery' || $validated['payment_method'] === 'Payment at Delivery (COD)') {
+            return redirect()->route('orders.show', $order->id)->with('success', 'Pesanan COD Anda berhasil dibuat! Pembayaran diserahkan kepada kurir saat buku sampai.');
+        }
+
+        return redirect()->route('orders.payment', $order->id)->with('info', 'Pesanan berhasil dibuat! Silakan selesaikan pembayaran untuk memproses pesanan.');
+    }
+
+    /**
+     * Halaman Pembayaran Interaktif User (QRIS, Bank Transfer VA, Debit)
+     */
+    public function paymentPage($id)
+    {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.orders.index');
+        }
+
+        $order = Order::with(['items.book', 'user'])
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Jika pesanan sudah dibayar, langsung alihkan ke faktur
+        if ($order->payment_status === 'paid') {
+            return redirect()->route('orders.show', $order->id)->with('info', 'Pesanan ini sudah dibayar (Lunas).');
+        }
+
+        return view('orders.payment', compact('order'));
+    }
+
+    /**
+     * Proses Konfirmasi Pembayaran oleh User (Update status menjadi sudah dibayar / lunas)
+     */
+    public function processPayment(Request $request, $id)
+    {
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.orders.index');
+        }
+
+        $order = Order::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'payment_method' => 'nullable|string|max:100',
+        ]);
+
+        $method = $validated['payment_method'] ?? $order->payment_method;
+
+        $order->update([
+            'payment_status' => 'paid',
+            'status' => 'pending', // Menunggu konfirmasi admin
+            'payment_method' => $method,
+        ]);
+
+        return redirect()->route('orders.show', $order->id)
+            ->with('success', "Pembayaran sebesar Rp " . number_format($order->total_amount, 0, ',', '.') . " berhasil! Status pesanan kini sudah dibayar dan sedang menunggu konfirmasi admin.");
     }
 
     /**

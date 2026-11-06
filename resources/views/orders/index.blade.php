@@ -54,20 +54,27 @@
                                     @elseif($order->status === 'cancelled')
                                         <span class="badge bg-danger">Dibatalkan</span>
                                     @else
-                                        <span class="badge bg-warning text-dark">Menunggu (Pending)</span>
+                                        <span class="badge bg-warning text-dark">Menunggu Konfirmasi Admin</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($order->payment_status === 'paid')
-                                        <span class="badge bg-success">Lunas</span>
+                                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Sudah Dibayar</span>
                                     @else
                                         <span class="badge bg-secondary">Belum Dibayar</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye me-1"></i> Detail
-                                    </a>
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-sm btn-outline-primary" title="Lihat Detail">
+                                            <i class="bi bi-eye"></i> Detail
+                                        </a>
+                                        @if($order->payment_status !== 'paid')
+                                            <a href="{{ route('orders.payment', $order->id) }}" class="btn btn-sm btn-primary" title="Bayar Sekarang">
+                                                <i class="bi bi-credit-card"></i> Bayar
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
