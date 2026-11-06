@@ -37,10 +37,12 @@
                             {{ Str::limit($msg->message, 70) }}
                         </td>
                         <td>
-                            @if(!$msg->is_read)
+                            @if($msg->admin_reply)
+                                <span class="badge bg-success"><i class="bi bi-check2-all me-1"></i> Sudah Dibalas</span>
+                            @elseif(!$msg->is_read)
                                 <span class="badge bg-warning text-dark"><i class="bi bi-envelope-fill me-1"></i> Baru</span>
                             @else
-                                <span class="badge bg-light text-muted border">Dibaca</span>
+                                <span class="badge bg-secondary-subtle text-secondary border">Dibaca</span>
                             @endif
                         </td>
                         <td class="small text-muted">{{ $msg->created_at->format('d/m/Y H:i') }}</td>

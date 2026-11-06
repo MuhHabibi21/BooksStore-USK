@@ -82,8 +82,17 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'phone' => ['nullable', 'regex:/^[0-9]{10,13}$/'],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+                'confirmed',
+            ],
+            'phone' => ['nullable', 'regex:/^(\+?[0-9]{10,15})$/'],
             'address' => 'nullable|string',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -91,9 +100,10 @@ class AuthController extends Controller
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
             'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 6 karakter.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.regex' => 'Password harus mengandung kombinasi huruf besar (A-Z), huruf kecil (a-z), angka (0-9), dan simbol (@#$%).',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'phone.regex' => 'Nomor telepon hanya boleh berisi angka dan panjangnya antara 10 hingga 13 digit.',
+            'phone.regex' => 'Nomor HP/WhatsApp harus berupa angka valid (10-15 digit) dan boleh menggunakan awalan + (contoh: 08... atau +62...).',
         ]);
 
         $user = User::create([

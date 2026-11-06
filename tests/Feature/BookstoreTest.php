@@ -52,38 +52,69 @@ class BookstoreTest extends TestCase
         $this->get('/cart')->assertStatus(200);
     }
 
-    public function test_registration_phone_validation(): void
+    public function test_registration_phone_and_password_validation(): void
     {
-        // 1. Phone dengan huruf / ngasal
+        // 1. Password lemah (kurang dari 8 karakter, tanpa huruf besar/simbol)
         $response = $this->post('/register', [
-            'name' => 'User Test',
-            'email' => 'testphone@example.com',
-            'password' => 'secret123',
-            'password_confirmation' => 'secret123',
-            'phone' => '0812abc345',
+            'name' => 'User Weak Pass',
+            'email' => 'weakpass@example.com',
+            'password' => 'secret',
+            'password_confirmation' => 'secret',
+            'phone' => '081234567890',
         ]);
-        $response->assertSessionHasErrors(['phone']);
+        $response->assertSessionHasErrors(['password']);
 
-        // 2. Phone lebih dari 13 digit
+        // 2. Password 8 karakter tapi tanpa simbol & huruf besar
         $response = $this->post('/register', [
-            'name' => 'User Test',
-            'email' => 'testphone2@example.com',
-            'password' => 'secret123',
-            'password_confirmation' => 'secret123',
-            'phone' => '0812345678901234',
-        ]);
-        $response->assertSessionHasErrors(['phone']);
-
-        // 3. Phone valid (12 digit angka)
-        $response = $this->post('/register', [
-            'name' => 'User Test Valid',
-            'email' => 'testphonevalid@example.com',
+            'name' => 'User No Symbol',
+            'email' => 'nosymbol@example.com',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
             'phone' => '081234567890',
         ]);
+        $response->assertSessionHasErrors(['password']);
+
+        // 3. Phone dengan huruf / karakter invalid
+        $response = $this->post('/register', [
+            'name' => 'User Test',
+            'email' => 'testphone@example.com',
+            'password' => 'Secret123!',
+            'password_confirmation' => 'Secret123!',
+            'phone' => '0812abc345',
+        ]);
+        $response->assertSessionHasErrors(['phone']);
+
+        // 4. Phone lebih dari 15 digit
+        $response = $this->post('/register', [
+            'name' => 'User Test',
+            'email' => 'testphone2@example.com',
+            'password' => 'Secret123!',
+            'password_confirmation' => 'Secret123!',
+            'phone' => '081234567890123456',
+        ]);
+        $response->assertSessionHasErrors(['phone']);
+
+        // 5. Phone valid dengan format internasional +62 & password kuat
+        $response = $this->post('/register', [
+            'name' => 'User Plus 62',
+            'email' => 'testphone62@example.com',
+            'password' => 'Secret123!',
+            'password_confirmation' => 'Secret123!',
+            'phone' => '+6281234567890',
+        ]);
         $response->assertSessionHasNoErrors();
-        $this->assertDatabaseHas('users', ['email' => 'testphonevalid@example.com', 'phone' => '081234567890']);
+        $this->assertDatabaseHas('users', ['email' => 'testphone62@example.com', 'phone' => '+6281234567890']);
+
+        // 6. Phone valid dengan format standar 08 & password kuat
+        $response = $this->post('/register', [
+            'name' => 'User Test Valid 08',
+            'email' => 'testphonevalid08@example.com',
+            'password' => 'Secret123!',
+            'password_confirmation' => 'Secret123!',
+            'phone' => '081234567890',
+        ]);
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('users', ['email' => 'testphonevalid08@example.com', 'phone' => '081234567890']);
     }
 
     public function test_book_detail_page(): void
@@ -239,8 +270,8 @@ class BookstoreTest extends TestCase
 
         $response = $this->put('/profile/password', [
             'current_password' => 'user123',
-            'password' => 'newpassword123',
-            'password_confirmation' => 'newpassword123',
+            'password' => 'NewPass123!',
+            'password_confirmation' => 'NewPass123!',
         ]);
 
         $response->assertSessionHas('success');
@@ -430,5 +461,45 @@ class BookstoreTest extends TestCase
         $updatedRes = $this->get('/my-orders/' . $order->id);
         $updatedRes->assertSee('Sudah Dibayar (Lunas)');
         $updatedRes->assertSee('Menunggu Konfirmasi Admin');
+    }
+
+    public function test_admin_can_reply_to_contact_and_user_can_view_reply(): void
+    {
+        $user = User::where('role', 'user')->first();
+        $admin = User::where('role', 'admin')->first();
+
+        // 1. User kirim pesan kontak
+        $contact = Contact::create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'subject' => 'Tanya Stok Buku Pemrograman',
+            'message' => 'Apakah buku Clean Code masih ready stok banyak?',
+            'is_read' => false,
+        ]);
+
+        // 2. Admin membuka detail pesan dan membalas
+        $this->actingAs($admin);
+        $showRes = $this->get('/admin/contacts/' . $contact->id);
+        $showRes->assertStatus(200);
+        $showRes->assertSee('Kirim Pesan Balasan ke Pengguna');
+
+        $replyRes = $this->post('/admin/contacts/' . $contact->id . '/reply', [
+            'admin_reply' => 'Halo Kak, stok buku Clean Code masih tersedia banyak dan siap dikirim!',
+        ]);
+        $replyRes->assertSessionHas('success');
+
+        $contact->refresh();
+        $this->assertTrue($contact->is_read);
+        $this->assertEquals('Halo Kak, stok buku Clean Code masih tersedia banyak dan siap dikirim!', $contact->admin_reply);
+        $this->assertNotNull($contact->replied_at);
+
+        // 3. User login dan melihat balasan di halaman Kontak (/contact)
+        $this->actingAs($user);
+        $userContactRes = $this->get('/contact');
+        $userContactRes->assertStatus(200);
+        $userContactRes->assertSee('Riwayat Pesan Anda');
+        $userContactRes->assertSee('Dibalas oleh Admin');
+        $userContactRes->assertSee('Halo Kak, stok buku Clean Code masih tersedia banyak dan siap dikirim!');
     }
 }

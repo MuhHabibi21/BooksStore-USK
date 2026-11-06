@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
@@ -25,6 +26,29 @@ class ContactController extends Controller
         $message->update(['is_read' => true]);
 
         return view('admin.contacts.show', compact('message'));
+    }
+
+    /**
+     * Balas Pesan Pengguna
+     */
+    public function reply(Request $request, $id)
+    {
+        $message = Contact::findOrFail($id);
+
+        $validated = $request->validate([
+            'admin_reply' => 'required|string',
+        ], [
+            'admin_reply.required' => 'Isi pesan balasan wajib diisi.',
+        ]);
+
+        $message->update([
+            'admin_reply' => $validated['admin_reply'],
+            'replied_at' => now(),
+            'is_read' => true,
+        ]);
+
+        return redirect()->route('admin.contacts.show', $message->id)
+            ->with('success', "Balasan berhasil dikirim! Pengguna ({$message->name}) kini dapat melihat pesan balasan Anda.");
     }
 
     /**

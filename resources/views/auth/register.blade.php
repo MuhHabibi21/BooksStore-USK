@@ -26,34 +26,64 @@
 
                         <div class="mb-3">
                             <label for="email" class="form-label fw-semibold">Alamat Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required placeholder="nama@email.com">
+                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required placeholder="contoh@domain.com">
                             @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="phone" class="form-label fw-semibold mb-1">Nomor HP / WhatsApp</label>
+                                <span class="text-muted small">Maks 15 Karakter</span>
+                            </div>
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="Contoh: 081234567890 atau +6281234567890" maxlength="15" inputmode="tel" oninput="this.value = this.value.replace(/[^\d+]/g, '').replace(/(?!^\+)[+]/g, '').slice(0, 15)">
+                            <small class="text-muted">Hanya angka & tanda + (contoh format: +62 atau 08).</small>
+                            @error('phone')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required placeholder="Min. 6 karakter">
+                                <label for="password" class="form-label fw-semibold">Kata Sandi <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required placeholder="Min 8 karakter">
                                 @error('password')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label for="password_confirmation" class="form-label fw-semibold">Konfirmasi Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi password">
+                                <label for="password_confirmation" class="form-label fw-semibold">Konfirmasi <span class="text-danger">*</span></label>
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi sandi">
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="phone" class="form-label fw-semibold">Nomor WhatsApp / HP</label>
-                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="Contoh: 081234567890" maxlength="13" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            <small class="text-muted">Hanya angka, antara 10 hingga 13 digit (maks. 13 angka).</small>
-                            @error('phone')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
+                        <!-- Kotak Indikator Kombinasi Sandi Wajib -->
+                        <div class="p-3 rounded-3 bg-light border mb-3" id="passwordCriteriaBox">
+                            <div class="small fw-semibold text-secondary mb-2">Kombinasi sandi wajib:</div>
+                            <div class="row g-2 small">
+                                <div class="col-6">
+                                    <span id="rule-min" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Min. 8 Karakter</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-upper" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Huruf Besar (A-Z)</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-lower" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Huruf Kecil (a-z)</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-symbol" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Angka & Simbol (@#$%)</span>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -65,12 +95,12 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
-                            <i class="bi bi-check-circle me-1"></i> Daftar Sekarang
+                            <i class="bi bi-check-circle me-1"></i> Buat Akun
                         </button>
                     </form>
 
                     <div class="text-center mt-3">
-                        <span class="text-muted small">Sudah memiliki akun?</span>
+                        <span class="text-muted small">Sudah punya akun?</span>
                         <a href="{{ route('login') }}" class="text-primary text-decoration-none fw-semibold small">Masuk di sini</a>
                     </div>
                 </div>
@@ -82,6 +112,37 @@
 
 @push('scripts')
 <script>
+    // Validasi interaktif checklist password
+    const pwdInput = document.getElementById('password');
+    if (pwdInput) {
+        function checkPasswordRules() {
+            const val = pwdInput.value || '';
+            updateRule('rule-min', val.length >= 8);
+            updateRule('rule-upper', /[A-Z]/.test(val));
+            updateRule('rule-lower', /[a-z]/.test(val));
+            updateRule('rule-symbol', /[0-9]/.test(val) && /[^a-zA-Z0-9]/.test(val));
+        }
+
+        function updateRule(elementId, isValid) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const icon = el.querySelector('i');
+            if (isValid) {
+                el.classList.remove('text-muted');
+                el.classList.add('text-success', 'fw-semibold');
+                if (icon) icon.className = 'bi bi-check-circle-fill me-1 text-success';
+            } else {
+                el.classList.add('text-muted');
+                el.classList.remove('text-success', 'fw-semibold');
+                if (icon) icon.className = 'bi bi-circle me-1 text-muted';
+            }
+        }
+
+        pwdInput.addEventListener('input', checkPasswordRules);
+        // Check in case browser auto-filled
+        checkPasswordRules();
+    }
+
     // Mencegah kembali ke form registrasi saat menekan tombol backward browser jika sudah login (BFCache handling)
     window.addEventListener('pageshow', function (event) {
         if (event.persisted || (window.performance && (window.performance.navigation?.type === 2 || window.performance.getEntriesByType('navigation')[0]?.type === 'back_forward'))) {

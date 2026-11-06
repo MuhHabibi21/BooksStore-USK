@@ -27,14 +27,14 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => ['nullable', 'regex:/^[0-9]{10,13}$/'],
+            'phone' => ['nullable', 'regex:/^(\+?[0-9]{10,15})$/'],
             'address' => 'nullable|string',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Alamat email sudah digunakan oleh akun lain.',
-            'phone.regex' => 'Nomor WhatsApp / HP hanya boleh berisi angka dan panjangnya antara 10 hingga 13 digit.',
+            'phone.regex' => 'Nomor WhatsApp / HP harus berupa angka valid (10-15 digit) dan boleh menggunakan format +62 atau 08.',
         ]);
 
         $user->update($validated);
@@ -51,11 +51,21 @@ class ProfileController extends Controller
 
         $request->validate([
             'current_password' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+                'confirmed',
+            ],
         ], [
             'current_password.required' => 'Password saat ini (lama) wajib diisi.',
             'password.required' => 'Password baru wajib diisi.',
-            'password.min' => 'Password baru minimal 6 karakter.',
+            'password.min' => 'Password baru minimal 8 karakter.',
+            'password.regex' => 'Password baru harus mengandung kombinasi huruf besar (A-Z), huruf kecil (a-z), angka (0-9), dan simbol (@#$%).',
             'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 

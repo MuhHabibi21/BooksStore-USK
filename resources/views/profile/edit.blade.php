@@ -76,9 +76,12 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="phone" class="form-label fw-semibold">Nomor WhatsApp / HP</label>
-                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Contoh: 081234567890" maxlength="13" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            <small class="text-muted">Hanya angka, antara 10 hingga 13 digit.</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label for="phone" class="form-label fw-semibold mb-1">Nomor WhatsApp / HP</label>
+                                <span class="text-muted small">Maks 15 Karakter</span>
+                            </div>
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Contoh: 081234567890 atau +6281234567890" maxlength="15" inputmode="tel" oninput="this.value = this.value.replace(/[^\d+]/g, '').replace(/(?!^\+)[+]/g, '').slice(0, 15)">
+                            <small class="text-muted">Hanya angka & tanda + (contoh format: +62 atau 08).</small>
                             @error('phone')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -128,18 +131,45 @@
                             <label for="password" class="form-label fw-semibold">Password Baru <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required placeholder="Minimal 6 karakter">
+                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required placeholder="Min 8 karakter">
                             </div>
                             @error('password')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label for="password_confirmation" class="form-label fw-semibold">Ulangi Konfirmasi Password Baru <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="Ketik ulang password baru">
+                                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi sandi">
+                            </div>
+                        </div>
+
+                        <!-- Kotak Indikator Kombinasi Sandi Wajib -->
+                        <div class="p-3 rounded-3 bg-light border mb-4" id="passwordCriteriaBox">
+                            <div class="small fw-semibold text-secondary mb-2">Kombinasi sandi wajib:</div>
+                            <div class="row g-2 small">
+                                <div class="col-6">
+                                    <span id="rule-min" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Min. 8 Karakter</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-upper" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Huruf Besar (A-Z)</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-lower" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Huruf Kecil (a-z)</span>
+                                    </span>
+                                </div>
+                                <div class="col-6">
+                                    <span id="rule-symbol" class="text-muted d-flex align-items-center">
+                                        <i class="bi bi-circle me-1"></i> <span>Angka & Simbol (@#$%)</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -153,3 +183,36 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    const pwdInput = document.getElementById('password');
+    if (pwdInput) {
+        function checkPasswordRules() {
+            const val = pwdInput.value || '';
+            updateRule('rule-min', val.length >= 8);
+            updateRule('rule-upper', /[A-Z]/.test(val));
+            updateRule('rule-lower', /[a-z]/.test(val));
+            updateRule('rule-symbol', /[0-9]/.test(val) && /[^a-zA-Z0-9]/.test(val));
+        }
+
+        function updateRule(elementId, isValid) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const icon = el.querySelector('i');
+            if (isValid) {
+                el.classList.remove('text-muted');
+                el.classList.add('text-success', 'fw-semibold');
+                if (icon) icon.className = 'bi bi-check-circle-fill me-1 text-success';
+            } else {
+                el.classList.add('text-muted');
+                el.classList.remove('text-success', 'fw-semibold');
+                if (icon) icon.className = 'bi bi-circle me-1 text-muted';
+            }
+        }
+
+        pwdInput.addEventListener('input', checkPasswordRules);
+        checkPasswordRules();
+    }
+</script>
+@endpush

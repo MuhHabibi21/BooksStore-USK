@@ -108,7 +108,7 @@ class HomeController extends Controller
     }
 
     /**
-     * Halaman Contact Us (Hubungi Admin)
+     * Halaman Contact Us (Hubungi Admin & Riwayat Balasan)
      */
     public function contact()
     {
@@ -116,7 +116,14 @@ class HomeController extends Controller
             return redirect()->route('admin.contacts.index');
         }
 
-        return view('contact');
+        $myMessages = Auth::check() 
+            ? Contact::where('user_id', Auth::id())
+                ->orWhere('email', Auth::user()->email)
+                ->latest()
+                ->get() 
+            : collect();
+
+        return view('contact', compact('myMessages'));
     }
 
     /**

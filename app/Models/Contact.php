@@ -17,6 +17,13 @@ class Contact extends Model
         'subject',
         'message',
         'is_read',
+        'admin_reply',
+        'replied_at',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
+        'replied_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

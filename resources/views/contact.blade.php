@@ -92,5 +92,78 @@
             </div>
         </div>
     </div>
+
+    @if(isset($myMessages) && $myMessages->count() > 0)
+        <!-- Riwayat Pesan & Balasan Admin -->
+        <div class="row justify-content-center mt-5" id="riwayat-pesan">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+                    <h4 class="fw-bold mb-0 text-dark">
+                        <i class="bi bi-chat-dots-fill text-primary me-2"></i> Riwayat Pesan Anda & Balasan Admin
+                    </h4>
+                    <span class="badge bg-secondary-subtle text-secondary border">{{ $myMessages->count() }} Pesan</span>
+                </div>
+
+                <div class="vstack gap-3">
+                    @foreach($myMessages as $msg)
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">{{ $msg->subject }}</h6>
+                                    <small class="text-muted">Dikirim pada: {{ $msg->created_at->format('d M Y, H:i') }} WIB</small>
+                                </div>
+                                <div>
+                                    @if($msg->admin_reply)
+                                        <span class="badge bg-success px-3 py-2">
+                                            <i class="bi bi-check2-all me-1"></i> Dibalas oleh Admin
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning text-dark px-3 py-2">
+                                            <i class="bi bi-clock-history me-1"></i> Menunggu Balasan Admin
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="card-body p-3 p-md-4">
+                                <!-- Pesan yang Dikirim User -->
+                                <div class="p-3 bg-light rounded-3 mb-3 border">
+                                    <span class="fw-bold small text-muted d-block mb-1">
+                                        <i class="bi bi-person-fill text-secondary me-1"></i> Pesan Anda:
+                                    </span>
+                                    <div class="text-dark lh-base">
+                                        {!! nl2br(e($msg->message)) !!}
+                                    </div>
+                                </div>
+
+                                <!-- Balasan dari Admin -->
+                                @if($msg->admin_reply)
+                                    <div class="card border-success-subtle bg-success-subtle shadow-sm">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                                <strong class="text-success">
+                                                    <i class="bi bi-shield-check me-1"></i> Balasan dari Administrator:
+                                                </strong>
+                                                <small class="text-muted">
+                                                    {{ $msg->replied_at ? $msg->replied_at->format('d M Y, H:i') : '' }} WIB
+                                                </small>
+                                            </div>
+                                            <div class="p-3 bg-white rounded-3 text-dark lh-base border border-success-subtle">
+                                                {!! nl2br(e($msg->admin_reply)) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="alert alert-warning py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+                                        <i class="bi bi-hourglass-split fs-5"></i>
+                                        <div>Pesan Anda telah sampai ke admin dan sedang menunggu tanggapan/balasan dari tim kami.</div>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection
