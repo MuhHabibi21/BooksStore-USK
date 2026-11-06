@@ -187,12 +187,28 @@
                     @endif
 
                     @guest
-                        <li class="nav-item">
-                            <a class="nav-link text-white fw-semibold" href="{{ route('login') }}">Masuk</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-warning text-dark fw-bold" href="{{ route('register') }}">Daftar</a>
-                        </li>
+                        @if(request()->routeIs('login') || request()->is('login*'))
+                            <li class="nav-item">
+                                <a class="btn btn-warning text-dark fw-bold px-3 shadow-sm" href="{{ route('login') }}">Masuk</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white fw-semibold" href="{{ route('register') }}">Daftar</a>
+                            </li>
+                        @elseif(request()->routeIs('register') || request()->is('register*'))
+                            <li class="nav-item">
+                                <a class="nav-link text-white fw-semibold" href="{{ route('login') }}">Masuk</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-warning text-dark fw-bold px-3 shadow-sm" href="{{ route('register') }}">Daftar</a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link text-white fw-semibold" href="{{ route('login') }}">Masuk</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-warning text-dark fw-bold px-3" href="{{ route('register') }}">Daftar</a>
+                            </li>
+                        @endif
                     @else
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2" href="#" id="userMenu" role="button" data-bs-toggle="dropdown">

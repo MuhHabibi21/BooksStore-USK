@@ -26,8 +26,16 @@ class BookstoreTest extends TestCase
         $this->get('/')->assertStatus(200);
         $this->get('/about')->assertStatus(200);
         $this->get('/contact')->assertStatus(200);
-        $this->get('/login')->assertStatus(200);
-        $this->get('/register')->assertStatus(200);
+        
+        $loginRes = $this->get('/login');
+        $loginRes->assertStatus(200);
+        // Pada halaman login, tombol Masuk aktif dengan styling btn-warning
+        $loginRes->assertSee('class="btn btn-warning text-dark fw-bold px-3 shadow-sm" href="' . route('login') . '">Masuk</a>', false);
+
+        $registerRes = $this->get('/register');
+        $registerRes->assertStatus(200);
+        // Pada halaman register, tombol Daftar aktif dengan styling btn-warning
+        $registerRes->assertSee('class="btn btn-warning text-dark fw-bold px-3 shadow-sm" href="' . route('register') . '">Daftar</a>', false);
     }
 
     public function test_guest_accessing_cart_redirects_to_login(): void
