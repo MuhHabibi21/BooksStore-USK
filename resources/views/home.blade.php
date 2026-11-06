@@ -5,20 +5,20 @@
 @section('content')
 <div class="container">
     <!-- Banner Selamat Datang Toko Buku -->
-    <div class="card border-0 text-white rounded-3 shadow-sm mb-4 overflow-hidden" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-        <div class="card-body p-4 p-md-5">
+    <div class="card border-0 text-white rounded-3 shadow-sm mb-3 mb-md-4 overflow-hidden" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+        <div class="card-body p-3 p-md-5">
             <div class="row align-items-center">
                 <div class="col-lg-8">
-                    <span class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase mb-2">
+                    <span class="badge bg-warning text-dark px-2 px-md-3 py-1 py-md-2 fw-bold text-uppercase mb-2" style="font-size: 0.75rem;">
                         <i class="bi bi-shop me-1"></i> Toko Buku Online Resmi
                     </span>
-                    <h1 class="display-6 fw-bold mb-2">Selamat Datang di BookStore</h1>
-                    <p class="lead mb-3 opacity-90">Beli buku fisik original favorit Anda secara online dengan metode mudah <strong>Payment at Delivery (Bayar Saat Diantar)</strong>.</p>
-                    <div class="d-flex flex-wrap gap-2 text-white small">
+                    <h1 class="fs-2 fs-md-1 fw-bold mb-2">Selamat Datang di BookStore</h1>
+                    <p class="lead fs-6 mb-3 opacity-90">Beli buku fisik original favorit Anda secara online dengan metode mudah <strong>Payment at Delivery (COD)</strong>.</p>
+                    <div class="d-flex flex-wrap gap-2 text-white small" style="font-size: 0.8rem;">
                         <span><i class="bi bi-patch-check-fill text-warning me-1"></i> 100% Koleksi Asli</span>
-                        <span class="mx-2">&bull;</span>
+                        <span class="d-none d-sm-inline mx-1">&bull;</span>
                         <span><i class="bi bi-box-seam text-warning me-1"></i> Pengemasan Aman & Rapi</span>
-                        <span class="mx-2">&bull;</span>
+                        <span class="d-none d-sm-inline mx-1">&bull;</span>
                         <span><i class="bi bi-truck text-warning me-1"></i> Bayar di Tempat (COD)</span>
                     </div>
                 </div>
@@ -29,9 +29,80 @@
         </div>
     </div>
 
+    <!-- Bar Kategori Swipeable Horizontal (Khusus Layar HP / Mobile) -->
+    <div class="d-lg-none mb-3">
+        <div class="category-scroll-container">
+            <a href="{{ route('home', array_merge(request()->except('category', 'page'))) }}" 
+               class="category-pill {{ !request('category') ? 'active' : '' }}">
+                <i class="bi bi-grid-fill me-1"></i> Semua Buku
+                <span class="badge bg-secondary rounded-pill ms-1">{{ $totalAllBooks }}</span>
+            </a>
+            @foreach($categories as $cat)
+                <a href="{{ route('home', array_merge(request()->except('page'), ['category' => $cat->id])) }}" 
+                   class="category-pill {{ request('category') == $cat->id ? 'active' : '' }}">
+                    <i class="bi bi-bookmark me-1"></i> {{ $cat->name }}
+                    <span class="badge bg-light text-dark rounded-pill ms-1">{{ $cat->books_count }}</span>
+                </a>
+            @endforeach
+        </div>
+
+        <!-- Tombol Buka Filter Lanjutan di HP -->
+        <div class="mt-2">
+            <button class="btn btn-outline-primary btn-sm w-100 d-flex justify-content-between align-items-center py-2" type="button" data-bs-toggle="collapse" data-bs-target="#mobileFilterCollapse" aria-expanded="false">
+                <span><i class="bi bi-sliders me-1"></i> Filter Lanjutan (Harga & Stok)</span>
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="collapse mt-2" id="mobileFilterCollapse">
+                <div class="card card-body border-0 shadow-sm p-3">
+                    <form action="{{ route('home') }}" method="GET">
+                        @if(request('category'))
+                            <input type="hidden" name="category" value="{{ request('category') }}">
+                        @endif
+                        @if(request('q'))
+                            <input type="hidden" name="q" value="{{ request('q') }}">
+                        @endif
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">Rentang Harga:</label>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="radio" name="price_range" id="m_price_all" value="" {{ !request('price_range') ? 'checked' : '' }} onchange="this.form.submit()">
+                                <label class="form-check-label small" for="m_price_all">Semua Harga</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="radio" name="price_range" id="m_price_under_50" value="under_50" {{ request('price_range') == 'under_50' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <label class="form-check-label small" for="m_price_under_50">&lt; Rp 50.000</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="radio" name="price_range" id="m_price_50_100" value="50_100" {{ request('price_range') == '50_100' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <label class="form-check-label small" for="m_price_50_100">Rp 50.000 - Rp 100.000</label>
+                            </div>
+                            <div class="form-check mb-1">
+                                <input class="form-check-input" type="radio" name="price_range" id="m_price_above_100" value="above_100" {{ request('price_range') == 'above_100' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <label class="form-check-label small" for="m_price_above_100">&gt; Rp 100.000</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-2 border-top pt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="in_stock" id="m_in_stock" value="1" {{ request('in_stock') == '1' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <label class="form-check-label small fw-semibold" for="m_in_stock">Hanya Tampilkan Stok Tersedia</label>
+                            </div>
+                        </div>
+
+                        @if(request('category') || request('price_range') || request('in_stock') || request('q'))
+                            <a href="{{ route('home') }}" class="btn btn-outline-danger btn-sm w-100 mt-2">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filter
+                            </a>
+                        @endif
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
-        <!-- SIDEBAR FILTER BUKU (Kategori, Rentang Harga, Ketersediaan) -->
-        <div class="col-lg-3">
+        <!-- SIDEBAR FILTER BUKU (Hanya Desktop) -->
+        <div class="col-lg-3 d-none d-lg-block">
             <div class="filter-sidebar shadow-sm mb-4 sticky-top" style="top: 80px; z-index: 10;">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <h5 class="fw-bold mb-0 text-dark">
@@ -188,8 +259,8 @@
                 </div>
             </div>
 
-            <!-- GRID DAFTAR BUKU -->
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mb-4">
+            <!-- GRID DAFTAR BUKU (2 Kolom di Layar HP, 3 Kolom di Tablet & Laptop) -->
+            <div class="row row-cols-2 row-cols-md-3 g-2 g-sm-3 g-md-4 mb-4">
                 @forelse($books as $book)
                     <div class="col">
                         <div class="book-wrapper shadow-sm">
@@ -201,9 +272,9 @@
                                     </a>
                                 @else
                                     <a href="{{ route('books.show', $book->id) }}" class="text-decoration-none">
-                                        <div class="book-cover-img bg-dark text-white d-flex align-items-center justify-content-center p-3 text-center">
+                                        <div class="book-cover-img bg-dark text-white d-flex align-items-center justify-content-center p-2 p-sm-3 text-center">
                                             <div>
-                                                <i class="bi bi-book fs-1 d-block mb-2"></i>
+                                                <i class="bi bi-book fs-3 fs-sm-1 d-block mb-1 mb-sm-2"></i>
                                                 <span class="small fw-bold">{{ $book->title }}</span>
                                             </div>
                                         </div>
@@ -211,21 +282,21 @@
                                 @endif
 
                                 <!-- Badge Status Stok di Pojok Cover -->
-                                <div class="position-absolute top-0 end-0 m-2">
+                                <div class="position-absolute top-0 end-0 m-1 m-sm-2">
                                     @if($book->stock > 0)
-                                        <span class="badge bg-success shadow-sm">Stok: {{ $book->stock }}</span>
+                                        <span class="badge bg-success shadow-sm" style="font-size: 0.7rem;">Stok: {{ $book->stock }}</span>
                                     @else
-                                        <span class="badge bg-danger shadow-sm">Habis</span>
+                                        <span class="badge bg-danger shadow-sm" style="font-size: 0.7rem;">Habis</span>
                                     @endif
                                 </div>
                             </div>
 
                             <!-- Detail Buku & Penjualan -->
-                            <div class="p-3 d-flex flex-column flex-grow-1">
+                            <div class="p-2 p-sm-3 d-flex flex-column flex-grow-1">
                                 <!-- Kategori & Rating -->
                                 <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="badge bg-light text-primary border small">{{ $book->category->name ?? 'Buku' }}</span>
-                                    <span class="text-warning small fw-bold">
+                                    <span class="badge bg-light text-primary border small text-truncate" style="max-width: 100px;">{{ $book->category->name ?? 'Buku' }}</span>
+                                    <span class="text-warning small fw-bold" style="font-size: 0.75rem;">
                                         <i class="bi bi-star-fill"></i> 4.9
                                     </span>
                                 </div>
@@ -238,43 +309,43 @@
                                 </h6>
 
                                 <!-- Penulis & Penerbit -->
-                                <p class="text-muted small mb-2">
-                                    Penulis: <strong>{{ $book->author }}</strong><br>
-                                    <span class="opacity-75">{{ $book->publisher }} ({{ $book->year }})</span>
+                                <p class="text-muted small mb-2 text-truncate">
+                                    <strong>{{ $book->author }}</strong><br>
+                                    <span class="opacity-75">{{ $book->publisher }}</span>
                                 </p>
 
                                 <!-- Harga & Aksi Beli -->
                                 <div class="mt-auto pt-2 border-top">
                                     <div class="d-flex justify-content-between align-items-baseline mb-2">
-                                        <span class="text-muted small">Harga:</span>
+                                        <span class="text-muted small d-none d-sm-inline">Harga:</span>
                                         <span class="fs-5 fw-bold text-primary">Rp {{ number_format($book->price, 0, ',', '.') }}</span>
                                     </div>
 
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('books.show', $book->id) }}" class="btn btn-outline-secondary btn-sm flex-fill" title="Lihat Sinopsis">
-                                            <i class="bi bi-eye"></i> Detail
+                                    <div class="d-flex gap-1 gap-sm-2">
+                                        <a href="{{ route('books.show', $book->id) }}" class="btn btn-outline-secondary btn-sm flex-fill px-1 px-sm-2 text-nowrap" title="Lihat Sinopsis">
+                                            <i class="bi bi-eye"></i> <span class="d-none d-sm-inline">Detail</span>
                                         </a>
 
                                         @if(Auth::check() && Auth::user()->isAdmin())
-                                            <a href="{{ route('admin.books.edit', $book->id) }}" class="btn btn-outline-warning btn-sm flex-fill fw-semibold" title="Edit Buku (Admin)">
-                                                <i class="bi bi-pencil-square me-1"></i> Edit
+                                            <a href="{{ route('admin.books.edit', $book->id) }}" class="btn btn-outline-warning btn-sm flex-fill fw-semibold px-1 px-sm-2 text-nowrap" title="Edit Buku (Admin)">
+                                                <i class="bi bi-pencil-square"></i> <span class="d-none d-sm-inline">Edit</span>
                                             </a>
                                         @else
                                             @if($book->stock > 0)
                                                 @auth
                                                     <form action="{{ route('cart.add', $book->id) }}" method="POST" class="flex-fill">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">
-                                                            <i class="bi bi-cart-plus me-1"></i> Beli
+                                                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold px-1 px-sm-2 text-nowrap">
+                                                            <i class="bi bi-cart-plus"></i> <span class="d-none d-sm-inline">Beli</span>
                                                         </button>
                                                     </form>
                                                 @else
-                                                    <button type="button" class="btn btn-primary btn-sm flex-fill fw-semibold" data-bs-toggle="modal" data-bs-target="#loginPromptModal">
-                                                        <i class="bi bi-cart-plus me-1"></i> Beli
+                                                    <button type="button" class="btn btn-primary btn-sm flex-fill fw-semibold px-1 px-sm-2 text-nowrap" data-bs-toggle="modal" data-bs-target="#loginPromptModal">
+                                                        <i class="bi bi-cart-plus"></i> <span class="d-none d-sm-inline">Beli</span>
                                                     </button>
                                                 @endauth
                                             @else
-                                                <button class="btn btn-secondary btn-sm flex-fill" disabled>
+                                                <button class="btn btn-secondary btn-sm flex-fill px-1 px-sm-2 text-nowrap" disabled>
                                                     Habis
                                                 </button>
                                             @endif

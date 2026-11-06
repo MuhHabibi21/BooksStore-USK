@@ -18,7 +18,7 @@
         </button>
     </div>
 
-    <div class="card border-0 shadow-sm p-4 p-md-5">
+    <div class="card border-0 shadow-sm p-3 p-md-5">
         <!-- Header Faktur -->
         <div class="row align-items-center pb-4 border-bottom mb-4">
             <div class="col-md-6">

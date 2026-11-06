@@ -5,9 +5,9 @@
 @section('content')
 <div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
             <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-sm-4">
                     <div class="text-center mb-4">
                         <i class="bi bi-person-plus text-primary fs-1"></i>
                         <h4 class="fw-bold mt-2">Pendaftaran Akun Pengguna</h4>

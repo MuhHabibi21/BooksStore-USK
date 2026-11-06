@@ -17,20 +17,20 @@
         </ol>
     </nav>
 
-    <div class="card shadow-sm border-0 mb-5 overflow-hidden">
-        <div class="card-body p-4 p-md-5">
-            <div class="row g-5">
+    <div class="card shadow-sm border-0 mb-4 mb-md-5 overflow-hidden">
+        <div class="card-body p-3 p-md-5">
+            <div class="row g-4 g-md-5">
                 <!-- Cover Buku Fisik 3D -->
                 <div class="col-lg-4 text-center">
-                    <div class="p-4 bg-light rounded-4 d-inline-block shadow-sm">
+                    <div class="p-3 p-sm-4 bg-light rounded-4 d-inline-block shadow-sm" style="max-width: 100%;">
                         @if($book->cover_image)
                             <img src="{{ asset('storage/' . $book->cover_image) }}" 
                                  class="img-fluid rounded" 
                                  alt="{{ $book->title }}" 
-                                 style="max-height: 420px; width: 280px; object-fit: cover; box-shadow: -8px 8px 20px rgba(0,0,0,0.3);">
+                                 style="max-height: 420px; width: 260px; max-width: 100%; object-fit: cover; box-shadow: -6px 6px 18px rgba(0,0,0,0.25);">
                         @else
-                            <div class="rounded bg-dark text-white p-5 d-flex align-items-center justify-content-center" 
-                                 style="height: 380px; width: 260px; box-shadow: -8px 8px 20px rgba(0,0,0,0.3);">
+                            <div class="rounded bg-dark text-white p-4 p-sm-5 d-flex align-items-center justify-content-center" 
+                                 style="height: 350px; width: 250px; max-width: 100%; box-shadow: -6px 6px 18px rgba(0,0,0,0.25);">
                                 <div>
                                     <i class="bi bi-book fs-1 d-block mb-3"></i>
                                     <h5 class="fw-bold">{{ $book->title }}</h5>

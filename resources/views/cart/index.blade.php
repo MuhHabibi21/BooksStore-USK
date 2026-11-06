@@ -147,7 +147,7 @@
                             </div>
 
                             <div class="alert alert-info py-2 small mb-3">
-                                <i class="bi bi-truck me-1"></i> Metode Pembayaran: <strong>Payment at Delivery</strong> (COD / Bayar saat barang sampai).
+                                <i class="bi bi-wallet2 me-1"></i> Mendukung pembayaran via <strong>QRIS, Virtual Account, Debit & COD</strong>.
                             </div>
 
                             @auth
@@ -161,6 +161,27 @@
                             @endauth
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Sticky Bottom Checkout Bar (Khusus Layar HP / Mobile) -->
+            <div class="d-lg-none fixed-bottom bg-white border-top shadow-lg p-3" style="z-index: 1040;">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted d-block small" style="font-size: 0.75rem;">Total Tagihan:</span>
+                        <strong class="text-primary fs-6" id="mobileTotalCheckoutPrice">
+                            Rp {{ number_format($total, 0, ',', '.') }}
+                        </strong>
+                    </div>
+                    @auth
+                        <button type="submit" class="btn btn-primary btn-sm px-3 py-2 fw-bold" id="btnMobileCheckoutSubmit">
+                            Checkout (<span id="mobileCheckoutBtnCount">{{ array_sum(array_column($cart, 'quantity')) }}</span>) <i class="bi bi-arrow-right"></i>
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-primary btn-sm px-3 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#loginPromptModal">
+                            Checkout <i class="bi bi-arrow-right"></i>
+                        </button>
+                    @endauth
                 </div>
             </div>
         </form>
@@ -221,6 +242,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const checkoutBtnCount = document.getElementById('checkoutBtnCount');
     const selectedItemsText = document.getElementById('selectedItemsText');
     const totalCheckoutPrice = document.getElementById('totalCheckoutPrice');
+    const mobileTotalCheckoutPrice = document.getElementById('mobileTotalCheckoutPrice');
+    const mobileCheckoutBtnCount = document.getElementById('mobileCheckoutBtnCount');
+    const btnMobileCheckoutSubmit = document.getElementById('btnMobileCheckoutSubmit');
 
     let pendingDeleteId = null;
     let pendingDeleteType = 'single'; // 'single' atau 'selected' atau 'all'
@@ -256,16 +280,30 @@ document.addEventListener('DOMContentLoaded', function () {
         if (totalCheckoutPrice) totalCheckoutPrice.textContent = formatRupiah(totalCheckedPrice);
         if (checkoutBtnCount) checkoutBtnCount.textContent = totalCheckedQty + ' buku';
 
-        // Update Status Button Checkout
+        // Update Text Tampilan Mobile
+        if (mobileTotalCheckoutPrice) mobileTotalCheckoutPrice.textContent = formatRupiah(totalCheckedPrice);
+        if (mobileCheckoutBtnCount) mobileCheckoutBtnCount.textContent = totalCheckedQty + ' buku';
+
+        // Update Status Button Checkout Desktop & Mobile
+        const isCheckoutDisabled = (checkedCount === 0 || totalCheckedQty === 0);
         if (checkoutBtn) {
-            if (checkedCount === 0 || totalCheckedQty === 0) {
-                checkoutBtn.disabled = true;
+            checkoutBtn.disabled = isCheckoutDisabled;
+            if (isCheckoutDisabled) {
                 checkoutBtn.classList.remove('btn-primary');
                 checkoutBtn.classList.add('btn-secondary');
             } else {
-                checkoutBtn.disabled = false;
                 checkoutBtn.classList.remove('btn-secondary');
                 checkoutBtn.classList.add('btn-primary');
+            }
+        }
+        if (btnMobileCheckoutSubmit) {
+            btnMobileCheckoutSubmit.disabled = isCheckoutDisabled;
+            if (isCheckoutDisabled) {
+                btnMobileCheckoutSubmit.classList.remove('btn-primary');
+                btnMobileCheckoutSubmit.classList.add('btn-secondary');
+            } else {
+                btnMobileCheckoutSubmit.classList.remove('btn-secondary');
+                btnMobileCheckoutSubmit.classList.add('btn-primary');
             }
         }
 

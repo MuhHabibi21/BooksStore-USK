@@ -95,6 +95,116 @@
             background: #fff !important;
             color: #0d6efd !important;
         }
+
+        /* ===== Mobile Responsive Styles (Tampilan HP) ===== */
+        .category-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            gap: 0.5rem;
+            padding: 0.25rem 0.25rem 0.5rem 0.25rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .category-scroll-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .category-scroll-container::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.9rem;
+            border-radius: 50rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            background-color: #fff;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .category-pill:hover, .category-pill.active {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+        .category-pill.active .badge {
+            background-color: #fff !important;
+            color: #0d6efd !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                background: #0b5ed7;
+                padding: 1rem;
+                border-radius: 0.5rem;
+                margin-top: 0.5rem;
+            }
+            .navbar-nav .nav-link {
+                padding: 0.6rem 0.5rem;
+                border-radius: 0.25rem;
+            }
+            .navbar-nav .nav-link:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            .navbar-nav .btn {
+                width: 100%;
+                margin-top: 0.35rem;
+                margin-bottom: 0.35rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            .book-cover-container {
+                min-height: 180px;
+                padding: 0.5rem;
+            }
+            .book-cover-img {
+                height: 155px;
+                width: 110px;
+                max-width: 100%;
+            }
+            .filter-sidebar {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .container {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+            .book-cover-container {
+                min-height: 165px;
+                padding: 0.35rem;
+            }
+            .book-cover-img {
+                height: 140px;
+                width: 98px;
+            }
+            .book-wrapper h6 {
+                font-size: 0.9rem;
+            }
+            .book-wrapper p {
+                font-size: 0.75rem;
+            }
+            .book-wrapper .btn {
+                font-size: 0.8rem;
+                padding: 0.25rem 0.4rem;
+            }
+            .book-wrapper .fs-5 {
+                font-size: 0.95rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -103,7 +213,7 @@
         <div class="container d-flex justify-content-between align-items-center">
             <div>
                 <i class="bi bi-truck me-1 text-warning"></i> 
-                <span>Toko Buku Online Terlengkap &bull; Melayani <strong>Payment at Delivery (COD)</strong> ke Seluruh Alamat</span>
+                <span><span class="d-none d-sm-inline">Toko Buku Online Terlengkap &bull; </span>Melayani <strong>Payment at Delivery (COD)</strong> ke Seluruh Alamat</span>
             </div>
             <div class="d-none d-md-block text-light opacity-75">
                 <i class="bi bi-shield-check me-1 text-success"></i> 100% Koleksi Buku Asli & Terpercaya
@@ -129,9 +239,25 @@
                 </div>
             </form>
 
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- Tombol Keranjang Cepat & Toggler Hamburger di Tampilan HP -->
+            <div class="d-flex align-items-center gap-2 d-lg-none">
+                @if(!Auth::check() || !Auth::user()->isAdmin())
+                    @php
+                        $mobileCartCount = array_sum(array_column(session('cart', []), 'quantity'));
+                    @endphp
+                    <a class="btn btn-warning text-dark position-relative btn-sm px-2 py-1 shadow-sm" href="{{ route('cart.index') }}" title="Keranjang Belanja">
+                        <i class="bi bi-cart3 fs-6"></i>
+                        @if($mobileCartCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.65rem;">
+                                {{ $mobileCartCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
+                <button class="navbar-toggler border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <!-- Mobile Search -->

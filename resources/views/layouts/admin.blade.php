@@ -38,30 +38,86 @@
 </head>
 <body>
     <!-- Topbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container-fluid px-3">
-            <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{{ route('admin.dashboard') }}">
-                <i class="bi bi-shield-lock-fill text-warning"></i>
-                <span>BookStore Admin</span>
-            </a>
+    <nav class="navbar navbar-expand navbar-dark bg-dark sticky-top">
+        <div class="container-fluid px-2 px-md-3">
+            <div class="d-flex align-items-center">
+                <!-- Tombol Buka Menu Sidebar Khusus Mobile -->
+                <button class="btn btn-outline-light btn-sm d-md-none me-2 px-2 py-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminMobileSidebar" aria-controls="adminMobileSidebar">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
 
-            <div class="ms-auto d-flex align-items-center gap-3">
-                <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-warning text-white">
-                    <i class="bi bi-person-gear me-1"></i> Edit Profil
+                <a class="navbar-brand fw-bold d-flex align-items-center gap-2 mb-0" href="{{ route('admin.dashboard') }}">
+                    <i class="bi bi-shield-lock-fill text-warning"></i>
+                    <span class="d-none d-sm-inline">BookStore Admin</span>
+                    <span class="d-sm-none">Admin</span>
                 </a>
-                <a href="{{ route('home') }}" class="btn btn-sm btn-outline-light" target="_blank">
-                    <i class="bi bi-shop me-1"></i> Lihat Toko
+            </div>
+
+            <div class="ms-auto d-flex align-items-center gap-1 gap-md-2">
+                <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-outline-warning text-white px-2 py-1" title="Edit Profil">
+                    <i class="bi bi-person-gear"></i> <span class="d-none d-sm-inline">Profil</span>
                 </a>
-                <span class="text-light small d-none d-md-inline">Halo, <strong>{{ Auth::user()->name }}</strong></span>
+                <a href="{{ route('home') }}" class="btn btn-sm btn-outline-light px-2 py-1" target="_blank" title="Buka Toko">
+                    <i class="bi bi-shop"></i> <span class="d-none d-sm-inline">Toko</span>
+                </a>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-danger">
-                        <i class="bi bi-box-arrow-right"></i> Keluar
+                    <button type="submit" class="btn btn-sm btn-danger px-2 py-1" title="Keluar">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Keluar</span>
                     </button>
                 </form>
             </div>
         </div>
     </nav>
+
+    <!-- Offcanvas Sidebar Khusus Layar HP / Mobile -->
+    <div class="offcanvas offcanvas-start bg-dark text-white d-md-none" tabindex="-1" id="adminMobileSidebar" aria-labelledby="adminMobileSidebarLabel">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title fw-bold text-warning" id="adminMobileSidebarLabel">
+                <i class="bi bi-shield-lock-fill me-2"></i> BookStore Admin
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-3">
+            <div class="text-uppercase text-secondary fw-bold small mb-2">Menu Utama</div>
+            <ul class="nav flex-column mb-3">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.dashboard') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.categories.*') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.categories.index') }}">
+                        <i class="bi bi-tags me-2"></i> Kategori Buku
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.books.*') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.books.index') }}">
+                        <i class="bi bi-journal-bookmark me-2"></i> Data Buku
+                    </a>
+                </li>
+            </ul>
+
+            <div class="text-uppercase text-secondary fw-bold small mb-2">Transaksi & Pengguna</div>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.orders.*') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.orders.index') }}">
+                        <i class="bi bi-cart-check me-2"></i> Pesanan User
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.users.index') }}">
+                        <i class="bi bi-people me-2"></i> User Terdaftar
+                    </a>
+                </li>
+                <li class="nav-item mb-1">
+                    <a class="nav-link text-white {{ request()->routeIs('admin.contacts.*') ? 'bg-primary rounded' : '' }}" href="{{ route('admin.contacts.index') }}">
+                        <i class="bi bi-chat-left-text me-2"></i> Pesan Masuk
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
     <div class="container-fluid">
         <div class="row">
@@ -110,12 +166,25 @@
             <main class="col-md-9 col-lg-10 ms-sm-auto px-md-4 py-4">
                 <!-- Mobile Navigation Bar for small screens -->
                 <div class="d-md-none mb-3">
-                    <div class="btn-group w-100 flex-wrap" role="group">
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary btn-sm {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
-                        <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-primary btn-sm {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">Kategori</a>
-                        <a href="{{ route('admin.books.index') }}" class="btn btn-outline-primary btn-sm {{ request()->routeIs('admin.books.*') ? 'active' : '' }}">Buku</a>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-primary btn-sm {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">Pesanan</a>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary btn-sm {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">User</a>
+                    <div class="d-flex overflow-auto pb-1 gap-1" style="white-space: nowrap;">
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-sm {{ request()->routeIs('admin.dashboard') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-sm {{ request()->routeIs('admin.categories.*') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-tags me-1"></i> Kategori
+                        </a>
+                        <a href="{{ route('admin.books.index') }}" class="btn btn-sm {{ request()->routeIs('admin.books.*') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-journal-bookmark me-1"></i> Buku
+                        </a>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm {{ request()->routeIs('admin.orders.*') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-cart-check me-1"></i> Pesanan
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-sm {{ request()->routeIs('admin.users.*') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-people me-1"></i> User
+                        </a>
+                        <a href="{{ route('admin.contacts.index') }}" class="btn btn-sm {{ request()->routeIs('admin.contacts.*') ? 'btn-primary' : 'btn-outline-primary' }}">
+                            <i class="bi bi-chat-left-text me-1"></i> Pesan
+                        </a>
                     </div>
                 </div>
 

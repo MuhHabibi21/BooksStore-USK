@@ -39,22 +39,22 @@
                     </h5>
                     <small class="text-muted">Pilih metode di bawah ini lalu klik tombol konfirmasi bayar untuk menyelesaikan pesanan.</small>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-md-4">
                     <!-- Nav Tabs Pilihan Pembayaran -->
                     <ul class="nav nav-pills nav-fill mb-4 p-1 bg-light rounded-3" id="paymentTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active fw-bold py-2" id="qris-tab" data-bs-toggle="pill" data-bs-target="#qris-pane" type="button" role="tab">
+                            <button class="nav-link active fw-bold py-2 px-1 px-sm-3 small" id="qris-tab" data-bs-toggle="pill" data-bs-target="#qris-pane" type="button" role="tab">
                                 <i class="bi bi-qr-code me-1"></i> QRIS
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2" id="va-tab" data-bs-toggle="pill" data-bs-target="#va-pane" type="button" role="tab">
-                                <i class="bi bi-bank me-1"></i> Virtual Account
+                            <button class="nav-link fw-bold py-2 px-1 px-sm-3 small" id="va-tab" data-bs-toggle="pill" data-bs-target="#va-pane" type="button" role="tab">
+                                <i class="bi bi-bank me-1"></i> <span class="d-none d-sm-inline">Virtual </span>Account
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link fw-bold py-2" id="debit-tab" data-bs-toggle="pill" data-bs-target="#debit-pane" type="button" role="tab">
-                                <i class="bi bi-credit-card me-1"></i> Kartu Debit
+                            <button class="nav-link fw-bold py-2 px-1 px-sm-3 small" id="debit-tab" data-bs-toggle="pill" data-bs-target="#debit-pane" type="button" role="tab">
+                                <i class="bi bi-credit-card me-1"></i> <span class="d-none d-sm-inline">Kartu </span>Debit
                             </button>
                         </li>
                     </ul>
@@ -64,16 +64,16 @@
                         <!-- 1. TAB QRIS -->
                         <div class="tab-pane fade show active" id="qris-pane" role="tabpanel">
                             <div class="text-center py-2">
-                                <div class="p-3 border rounded-3 d-inline-block bg-white shadow-sm mb-3 text-center" style="max-width: 320px;">
+                                <div class="p-3 border rounded-3 d-inline-block bg-white shadow-sm mb-3 text-center" style="max-width: 100%; width: 300px;">
                                     <div class="d-flex justify-content-between align-items-center mb-2 px-1 border-bottom pb-2">
                                         <span class="fw-bold text-danger fs-5">QRIS</span>
-                                        <span class="text-muted small">STANDAR NASIONAL</span>
+                                        <span class="text-muted small" style="font-size: 0.75rem;">STANDAR NASIONAL</span>
                                     </div>
                                     <div class="small fw-semibold text-dark mb-2">BookStore Official Store</div>
                                     
                                     <!-- QR Code SVG Representation -->
                                     <div class="p-2 bg-light rounded d-flex justify-content-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="180" height="180">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="180" height="180" style="max-width: 100%; height: auto;">
                                             <!-- Background -->
                                             <rect width="200" height="200" fill="#ffffff"/>
                                             <!-- Corner Squares (Position Detection Patterns) -->
