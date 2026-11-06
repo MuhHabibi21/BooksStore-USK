@@ -12,7 +12,11 @@ class CartController extends Controller
      */
     public function index()
     {
-        if (auth()->check() && auth()->user()->isAdmin()) {
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Anda belum login, yuk login dulu untuk melihat keranjang belanja.');
+        }
+
+        if (auth()->user()->isAdmin()) {
             return redirect()->route('admin.dashboard')->with('error', 'Akun Administrator tidak memiliki keranjang belanja.');
         }
 
@@ -86,16 +90,38 @@ class CartController extends Controller
             if ($qty <= 0) {
                 unset($cart[$id]);
                 session()->put('cart', $cart);
+
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => true, 'action' => 'deleted']);
+                }
+
                 return back()->with('success', 'Item berhasil dihapus dari keranjang.');
             }
 
             if ($book && $qty > $book->stock) {
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => "Stok tidak mencukupi. Sisa stok: {$book->stock}"], 422);
+                }
                 return back()->with('error', "Stok tidak mencukupi. Sisa stok: {$book->stock}");
             }
 
             $cart[$id]['quantity'] = $qty;
             session()->put('cart', $cart);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'quantity' => $qty,
+                    'subtotal' => $cart[$id]['price'] * $qty,
+                    'formatted_subtotal' => 'Rp ' . number_format($cart[$id]['price'] * $qty, 0, ',', '.')
+                ]);
+            }
+
             return back()->with('success', 'Jumlah pesanan berhasil diperbarui.');
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'Item tidak ditemukan di keranjang.'], 404);
         }
 
         return back()->with('error', 'Item tidak ditemukan di keranjang.');

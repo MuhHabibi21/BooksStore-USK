@@ -27,13 +27,14 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:25',
+            'phone' => ['nullable', 'regex:/^[0-9]{10,13}$/'],
             'address' => 'nullable|string',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Alamat email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Alamat email sudah digunakan oleh akun lain.',
+            'phone.regex' => 'Nomor WhatsApp / HP hanya boleh berisi angka dan panjangnya antara 10 hingga 13 digit.',
         ]);
 
         $user->update($validated);

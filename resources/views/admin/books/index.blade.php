@@ -93,13 +93,19 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
 
-                                <form action="{{ route('admin.books.destroy', $b->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus buku \"{{ $b->title }}\"?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Buku">
+                                @if($b->has_paid_orders)
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Buku tidak dapat dihapus karena sudah ada pesanan yang telah dibayar">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                </form>
+                                @else
+                                    <form action="{{ route('admin.books.destroy', $b->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus buku \"{{ $b->title }}\"?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Buku">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

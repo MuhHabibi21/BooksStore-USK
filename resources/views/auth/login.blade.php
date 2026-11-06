@@ -56,18 +56,18 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Hint akun pengujian demo -->
-            <div class="card bg-light border-0 shadow-sm mt-3">
-                <div class="card-body p-3 small">
-                    <strong class="text-primary"><i class="bi bi-info-circle me-1"></i> Akun Demo Login:</strong>
-                    <ul class="mb-0 mt-1 ps-3 text-muted">
-                        <li><strong>Admin:</strong> admin@bookstore.com / <code>admin123</code></li>
-                        <li><strong>User:</strong> user@bookstore.com / <code>user123</code></li>
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Mencegah kembali ke form login saat menekan tombol backward browser jika sudah login (BFCache handling)
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || (window.performance && (window.performance.navigation?.type === 2 || window.performance.getEntriesByType('navigation')[0]?.type === 'back_forward'))) {
+            window.location.reload();
+        }
+    });
+</script>
+@endpush

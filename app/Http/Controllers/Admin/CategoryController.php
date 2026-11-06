@@ -60,7 +60,13 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $category = Category::findOrFail($id);
+        $category = Category::withCount('books')->findOrFail($id);
+
+        if ($category->books_count > 0) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', "Kategori \"{$category->name}\" tidak dapat dihapus karena masih memuat {$category->books_count} buku. Pindahkan atau hapus bukunya terlebih dahulu agar buku tidak ikut terhapus.");
+        }
+
         $category->delete();
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus!');

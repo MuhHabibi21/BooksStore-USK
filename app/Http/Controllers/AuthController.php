@@ -20,7 +20,11 @@ class AuthController extends Controller
                 : redirect()->route('home');
         }
 
-        return view('auth.login');
+        return response()
+            ->view('auth.login')
+            ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     /**
@@ -63,7 +67,11 @@ class AuthController extends Controller
             return redirect()->route('home');
         }
 
-        return view('auth.register');
+        return response()
+            ->view('auth.register')
+            ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     }
 
     /**
@@ -75,7 +83,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'phone' => 'nullable|string|max:20',
+            'phone' => ['nullable', 'regex:/^[0-9]{10,13}$/'],
             'address' => 'nullable|string',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -85,6 +93,7 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
             'password.min' => 'Password minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'phone.regex' => 'Nomor telepon hanya boleh berisi angka dan panjangnya antara 10 hingga 13 digit.',
         ]);
 
         $user = User::create([

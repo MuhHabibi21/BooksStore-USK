@@ -15,7 +15,12 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Book::with('category');
+        $query = Book::with('category')
+            ->withExists(['orderItems as has_paid_orders' => function ($q) {
+                $q->whereHas('order', function ($sub) {
+                    $sub->where('payment_status', 'paid');
+                });
+            }]);
 
         if ($request->filled('q')) {
             $search = $request->input('q');
@@ -141,6 +146,16 @@ class BookController extends Controller
     public function destroy($id)
     {
         $book = Book::findOrFail($id);
+
+        // Validasi: Buku yang sudah dipesan & dibayar tidak boleh dihapus
+        $hasPaidOrders = $book->orderItems()->whereHas('order', function ($q) {
+            $q->where('payment_status', 'paid');
+        })->exists();
+
+        if ($hasPaidOrders) {
+            return redirect()->route('admin.books.index')
+                ->with('error', "Buku \"{$book->title}\" tidak dapat dihapus karena sudah ada transaksi pemesanan yang telah dibayar oleh pembeli.");
+        }
 
         if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
             Storage::disk('public')->delete($book->cover_image);

@@ -49,7 +49,8 @@
 
                         <div class="mb-3">
                             <label for="phone" class="form-label fw-semibold">Nomor WhatsApp / HP</label>
-                            <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="08xxxxxxxxxx">
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" placeholder="Contoh: 081234567890" maxlength="13" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <small class="text-muted">Hanya angka, antara 10 hingga 13 digit (maks. 13 angka).</small>
                             @error('phone')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -78,3 +79,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Mencegah kembali ke form registrasi saat menekan tombol backward browser jika sudah login (BFCache handling)
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted || (window.performance && (window.performance.navigation?.type === 2 || window.performance.getEntriesByType('navigation')[0]?.type === 'back_forward'))) {
+            window.location.reload();
+        }
+    });
+</script>
+@endpush

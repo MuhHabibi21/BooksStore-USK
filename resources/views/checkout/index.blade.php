@@ -35,7 +35,8 @@
 
                         <div class="mb-3">
                             <label for="recipient_phone" class="form-label fw-semibold">Nomor WhatsApp / HP Penerima <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('recipient_phone') is-invalid @enderror" id="recipient_phone" name="recipient_phone" value="{{ old('recipient_phone', $user->phone) }}" required placeholder="08xxxxxxxxxx">
+                            <input type="tel" class="form-control @error('recipient_phone') is-invalid @enderror" id="recipient_phone" name="recipient_phone" value="{{ old('recipient_phone', $user->phone) }}" required placeholder="Contoh: 081234567890" maxlength="13" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <small class="text-muted">Hanya angka, antara 10 hingga 13 digit.</small>
                             @error('recipient_phone')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror

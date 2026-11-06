@@ -46,13 +46,19 @@
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
 
-                                <form action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori \"{{ $cat->name }}\"? Buku di dalamnya juga dapat terpengaruh.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Kategori">
+                                @if($cat->books_count > 0)
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Kategori tidak dapat dihapus karena masih memuat {{ $cat->books_count }} buku">
                                         <i class="bi bi-trash"></i>
                                     </button>
-                                </form>
+                                @else
+                                    <form action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori \"{{ $cat->name }}\"?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Kategori">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

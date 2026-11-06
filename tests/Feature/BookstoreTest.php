@@ -26,9 +26,56 @@ class BookstoreTest extends TestCase
         $this->get('/')->assertStatus(200);
         $this->get('/about')->assertStatus(200);
         $this->get('/contact')->assertStatus(200);
-        $this->get('/cart')->assertStatus(200);
         $this->get('/login')->assertStatus(200);
         $this->get('/register')->assertStatus(200);
+    }
+
+    public function test_guest_accessing_cart_redirects_to_login(): void
+    {
+        $response = $this->get('/cart');
+        $response->assertRedirect('/login');
+        $response->assertSessionHas('error', 'Anda belum login, yuk login dulu untuk melihat keranjang belanja.');
+    }
+
+    public function test_authenticated_user_can_access_cart(): void
+    {
+        $user = User::where('role', 'user')->first();
+        $this->actingAs($user);
+        $this->get('/cart')->assertStatus(200);
+    }
+
+    public function test_registration_phone_validation(): void
+    {
+        // 1. Phone dengan huruf / ngasal
+        $response = $this->post('/register', [
+            'name' => 'User Test',
+            'email' => 'testphone@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'phone' => '0812abc345',
+        ]);
+        $response->assertSessionHasErrors(['phone']);
+
+        // 2. Phone lebih dari 13 digit
+        $response = $this->post('/register', [
+            'name' => 'User Test',
+            'email' => 'testphone2@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'phone' => '0812345678901234',
+        ]);
+        $response->assertSessionHasErrors(['phone']);
+
+        // 3. Phone valid (12 digit angka)
+        $response = $this->post('/register', [
+            'name' => 'User Test Valid',
+            'email' => 'testphonevalid@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'phone' => '081234567890',
+        ]);
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('users', ['email' => 'testphonevalid@example.com', 'phone' => '081234567890']);
     }
 
     public function test_book_detail_page(): void
@@ -189,5 +236,104 @@ class BookstoreTest extends TestCase
         ]);
 
         $response->assertSessionHas('success');
+    }
+
+    public function test_admin_cannot_delete_category_with_books(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->actingAs($admin);
+
+        $category = Category::whereHas('books')->first();
+        $this->assertNotNull($category);
+
+        $response = $this->delete('/admin/categories/' . $category->id);
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('categories', ['id' => $category->id]);
+    }
+
+    public function test_admin_can_delete_empty_category(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->actingAs($admin);
+
+        $emptyCategory = Category::create([
+            'name' => 'Kategori Kosong Baru',
+            'description' => 'Tidak memiliki buku',
+        ]);
+
+        $response = $this->delete('/admin/categories/' . $emptyCategory->id);
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('categories', ['id' => $emptyCategory->id]);
+    }
+
+    public function test_admin_cannot_delete_book_with_paid_orders(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $user = User::where('role', 'user')->first();
+        $this->actingAs($admin);
+
+        $book = Book::first();
+        $this->assertNotNull($book);
+
+        // Buat order dengan payment_status 'paid'
+        $order = Order::create([
+            'order_number' => 'ORD-TEST-PAID',
+            'user_id' => $user->id,
+            'total_amount' => $book->price,
+            'status' => 'completed',
+            'payment_method' => 'cod',
+            'payment_status' => 'paid',
+            'recipient_name' => 'Budi Santoso',
+            'recipient_phone' => '081234567890',
+            'delivery_address' => 'Jl. Merdeka No. 10',
+        ]);
+
+        $order->items()->create([
+            'book_id' => $book->id,
+            'quantity' => 1,
+            'price' => $book->price,
+            'subtotal' => $book->price,
+        ]);
+
+        $response = $this->delete('/admin/books/' . $book->id);
+        $response->assertSessionHas('error');
+        $this->assertDatabaseHas('books', ['id' => $book->id]);
+    }
+
+    public function test_admin_can_delete_book_without_paid_orders(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->actingAs($admin);
+
+        $category = Category::first();
+        $newBook = Book::create([
+            'category_id' => $category->id,
+            'title' => 'Buku Baru Belum Ada Order',
+            'author' => 'Penulis Percobaan',
+            'publisher' => 'Penerbit Percobaan',
+            'year' => 2024,
+            'price' => 50000,
+            'stock' => 10,
+        ]);
+
+        $response = $this->delete('/admin/books/' . $newBook->id);
+        $response->assertSessionHas('success');
+        $this->assertDatabaseMissing('books', ['id' => $newBook->id]);
+    }
+
+    public function test_login_page_has_no_cache_headers_and_redirects_authenticated_users(): void
+    {
+        // 1. Guest mengakses /login mendapatkan cache-control no-cache & no-store
+        $response = $this->get('/login');
+        $response->assertStatus(200);
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('no-cache', $cacheControl);
+
+        // 2. User yang sudah login mengakses /login langsung diarahkan ke home
+        $user = User::where('role', 'user')->first();
+        $this->actingAs($user);
+        $authResponse = $this->get('/login');
+        $authResponse->assertRedirect('/');
     }
 }

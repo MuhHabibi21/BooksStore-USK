@@ -77,7 +77,8 @@
 
                         <div class="mb-3">
                             <label for="phone" class="form-label fw-semibold">Nomor WhatsApp / HP</label>
-                            <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Contoh: 08123456789">
+                            <input type="tel" class="form-control @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="Contoh: 081234567890" maxlength="13" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <small class="text-muted">Hanya angka, antara 10 hingga 13 digit.</small>
                             @error('phone')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
